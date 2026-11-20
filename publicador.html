@@ -39,7 +39,8 @@ textarea{min-height:170px}
 .switch input:checked+span{background:var(--verde)}
 .switch input:checked+span:before{transform:translateX(20px)}
 .switch input:disabled+span{opacity:.5}
-.grade{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.grade>.card{min-width:0}
 @media(max-width:760px){.grade{grid-template-columns:1fr}}
 a{color:var(--verde)}
 .oculto{display:none}
