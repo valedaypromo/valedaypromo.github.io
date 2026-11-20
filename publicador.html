@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Publicador | Vale Day Promo</title>
+<style>
+:root{--verde:#2e7d32;--fundo:#f6f8f5;--borda:#dfe6dc;--texto:#1f2a1f;--cinza:#5f6b5f}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--fundo);color:var(--texto)}
+header{background:#fff;border-bottom:1px solid var(--borda);padding:14px 20px;display:flex;align-items:center;gap:12px}
+header img{width:40px;height:40px;border-radius:50%}
+header b{font-size:18px}
+main{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+.card{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:20px;margin-bottom:18px}
+h2{font-size:17px;margin:0 0 14px}
+button{font:inherit;border:0;border-radius:24px;padding:12px 22px;cursor:pointer}
+.prim{background:var(--verde);color:#fff;font-weight:600}
+.prim:disabled{background:#a9c3aa;cursor:not-allowed}
+.sec{background:#eef3ed;color:var(--texto)}
+.tt{background:#000;color:#fff;font-weight:600;display:inline-flex;align-items:center;gap:10px}
+.conta{display:flex;align-items:center;gap:12px}
+.conta img{width:48px;height:48px;border-radius:50%}
+.fotos{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.fotos img{height:220px;border-radius:10px;flex:none}
+label.campo{display:block;font-weight:600;margin:14px 0 6px}
+input[type=text],textarea,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--borda);border-radius:10px;background:#fff}
+textarea{min-height:170px}
+.linha{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
+.sub{color:var(--cinza);font-size:14px}
+.aviso{background:#fff8e1;border:1px solid #f3dd94;border-radius:10px;padding:10px 12px;font-size:14px;margin-top:10px}
+.ok{background:#e8f5e9;border-color:#b7dfb9}
+.erro{background:#fdecea;border-color:#f5c2bd}
+.switch{position:relative;width:46px;height:26px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch span{position:absolute;inset:0;background:#cfd8cd;border-radius:26px;transition:.2s}
+.switch span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+span{background:var(--verde)}
+.switch input:checked+span:before{transform:translateX(20px)}
+.switch input:disabled+span{opacity:.5}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.grade{grid-template-columns:1fr}}
+a{color:var(--verde)}
+.oculto{display:none}
+</style>
+</head>
+<body>
+<header><img src="logo.jpg" alt=""><b>Vale Day Promo · Publicador</b></header>
+<main>
+  <div id="semPonte" class="card oculto">
+    <h2>Programa do PC desligado</h2>
+    <p class="sub">Abra o programa <code>servidor_tiktok.py</code> no computador e atualize esta página.</p>
+  </div>
+
+  <div id="login" class="card oculto">
+    <h2>1. Conectar a conta do TikTok</h2>
+    <p class="sub">Entre com a conta do TikTok onde os carrosséis de achadinhos serão publicados.</p>
+    <button class="tt" id="btnEntrar">♪ Continuar com TikTok</button>
+  </div>
+
+  <div id="painel" class="oculto">
+    <div class="card">
+      <h2>Conta conectada</h2>
+      <div class="linha">
+        <div class="conta"><img id="foto" alt=""><div><b id="nome"></b><div class="sub" id="usuario"></div></div></div>
+        <button class="sec" id="btnSair">Desconectar</button>
+      </div>
+    </div>
+
+    <div class="grade">
+      <div class="card">
+        <h2>Prévia do post de hoje</h2>
+        <div class="fotos" id="fotos"></div>
+        <label class="campo" for="titulo">Título</label>
+        <input type="text" id="titulo" maxlength="90">
+        <label class="campo" for="legenda">Legenda</label>
+        <textarea id="legenda" maxlength="4000"></textarea>
+      </div>
+
+      <div class="card">
+        <h2>Configurações do post</h2>
+        <label class="campo" for="privacidade">Quem pode ver este post</label>
+        <select id="privacidade"><option value="" selected disabled>Selecione…</option></select>
+
+        <div class="linha">
+          <div><b>Permitir comentários</b></div>
+          <label class="switch"><input type="checkbox" id="comentarios"><span></span></label>
+        </div>
+
+        <div class="linha">
+          <div><b>Divulgar conteúdo comercial</b>
+            <div class="sub">Ative se este post promove você, sua marca ou um terceiro.</div></div>
+          <label class="switch"><input type="checkbox" id="comercial"><span></span></label>
+        </div>
+        <div id="opcoesComercial" class="oculto">
+          <div class="linha"><label><input type="checkbox" id="suaMarca"> <b>Sua marca</b>
+            <div class="sub">Você está promovendo você mesmo ou o seu próprio negócio.</div></label></div>
+          <div class="linha"><label><input type="checkbox" id="deMarca"> <b>Conteúdo de marca</b>
+            <div class="sub">Você está promovendo outra marca ou um terceiro.</div></label></div>
+          <div id="rotulo" class="aviso oculto"></div>
+        </div>
+
+        <p class="sub" id="declaracao"></p>
+
+        <button class="prim" id="btnPublicar" disabled>Publicar no TikTok</button>
+        <button class="sec" id="btnRascunho">Enviar como rascunho</button>
+        <div id="resultado" class="aviso oculto"></div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+const PONTE = 'http://127.0.0.1:8765';
+const $ = id => document.getElementById(id);
+const NOMES = {PUBLIC_TO_EVERYONE:'Todo mundo', MUTUAL_FOLLOW_FRIENDS:'Amigos (seguidores mútuos)',
+               FOLLOWER_OF_CREATOR:'Seguidores', SELF_ONLY:'Somente eu'};
+const MUSICA = '<a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank">Confirmação de Uso de Música</a>';
+const MARCA = '<a href="https://www.tiktok.com/legal/page/global/bc-policy/en" target="_blank">Política de Conteúdo de Marca</a>';
+let linkLogin = '';
+
+async function api(caminho, corpo) {
+  const r = await fetch(PONTE + caminho, corpo ? {method:'POST', headers:{'Content-Type':'application/json'},
+                                                   body: JSON.stringify(corpo)} : {});
+  const d = await r.json();
+  if (!r.ok || d.erro) throw new Error(d.erro || r.status);
+  return d;
+}
+
+function atualizar() {
+  const comercial = $('comercial').checked, sua = $('suaMarca').checked, de = $('deMarca').checked;
+  $('opcoesComercial').classList.toggle('oculto', !comercial);
+  // conteúdo de marca não pode ser "somente eu"
+  const somenteEu = [...$('privacidade').options].find(o => o.value === 'SELF_ONLY');
+  if (somenteEu) {
+    somenteEu.disabled = comercial && de;
+    somenteEu.textContent = NOMES.SELF_ONLY + (comercial && de ? ' (indisponível para conteúdo de marca)' : '');
+    if (comercial && de && $('privacidade').value === 'SELF_ONLY') $('privacidade').value = '';
+  }
+  const rot = $('rotulo');
+  if (comercial && (sua || de)) {
+    rot.classList.remove('oculto');
+    rot.textContent = de ? 'Seu post será rotulado como "Parceria paga".' : 'Seu post será rotulado como "Conteúdo promocional".';
+  } else rot.classList.add('oculto');
+  $('declaracao').innerHTML = 'Ao publicar, você concorda com a ' + (comercial && de ? MARCA + ' e a ' : '') + MUSICA + ' do TikTok.';
+  const okComercial = !comercial || sua || de;
+  $('btnPublicar').disabled = !$('privacidade').value || !okComercial;
+  $('btnPublicar').title = !okComercial ? 'Escolha "Sua marca" e/ou "Conteúdo de marca"' : '';
+}
+
+async function acompanhar(pid) {
+  const res = $('resultado');
+  for (let i = 0; i < 25; i++) {
+    await new Promise(r => setTimeout(r, 4000));
+    const s = await api('/status/' + encodeURIComponent(pid));
+    if (s.status === 'PUBLISH_COMPLETE') { res.className = 'aviso ok'; res.textContent = '✅ Publicado! Pode levar alguns minutos para aparecer no seu perfil.'; return; }
+    if (s.status === 'SEND_TO_USER_INBOX') { res.className = 'aviso ok'; res.textContent = '✅ Enviado como rascunho. Abra o app do TikTok e toque na notificação para revisar e publicar.'; return; }
+    if (s.status === 'FAILED') { res.className = 'aviso erro'; res.textContent = 'O TikTok não conseguiu publicar: ' + (s.fail_reason || ''); return; }
+    res.textContent = '⏳ Processando no TikTok… (' + (s.status || 'aguardando') + ')';
+  }
+}
+
+async function publicar(modo) {
+  const res = $('resultado');
+  res.className = 'aviso'; res.classList.remove('oculto'); res.textContent = '⏳ Enviando para o TikTok…';
+  $('btnPublicar').disabled = true; $('btnRascunho').disabled = true;
+  try {
+    const d = await api('/publicar', {modo, titulo: $('titulo').value, legenda: $('legenda').value,
+      privacidade: $('privacidade').value, comentarios: $('comentarios').checked,
+      sua_marca: $('comercial').checked && $('suaMarca').checked,
+      conteudo_de_marca: $('comercial').checked && $('deMarca').checked});
+    await acompanhar(d.publish_id);
+  } catch (e) { res.className = 'aviso erro'; res.textContent = 'Erro: ' + e.message; }
+  $('btnRascunho').disabled = false; atualizar();
+}
+
+async function iniciar() {
+  let est;
+  try { est = await api('/estado'); } catch (e) { $('semPonte').classList.remove('oculto'); return; }
+  linkLogin = est.link;
+  if (!est.autorizado) { $('login').classList.remove('oculto'); return; }
+  try {
+    const c = await api('/conta');
+    $('foto').src = c.foto; $('nome').textContent = c.nome; $('usuario').textContent = '@' + c.usuario + ' · publicando nesta conta';
+    for (const p of c.privacidade) { const o = document.createElement('option'); o.value = p; o.textContent = NOMES[p] || p; $('privacidade').appendChild(o); }
+    $('comentarios').checked = !c.comentarios_bloqueados; $('comentarios').disabled = !!c.comentarios_bloqueados;
+    const h = await api('/hoje');
+    $('titulo').value = h.titulo; $('legenda').value = h.legenda;
+    $('fotos').innerHTML = h.fotos.map((u, i) => `<img src="${u}" alt="Foto ${i + 1} do carrossel">`).join('');
+    $('painel').classList.remove('oculto');
+  } catch (e) { $('login').classList.remove('oculto'); }
+  atualizar();
+}
+
+$('btnEntrar').onclick = () => { location.href = linkLogin; };
+$('btnSair').onclick = async () => { await api('/sair', {}); location.reload(); };
+['privacidade', 'comercial', 'suaMarca', 'deMarca'].forEach(id => $(id).addEventListener('change', atualizar));
+$('btnPublicar').onclick = () => publicar('direto');
+$('btnRascunho').onclick = () => publicar('rascunho');
+iniciar();
+</script>
+</body>
+</html>

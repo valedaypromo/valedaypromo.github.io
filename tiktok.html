@@ -13,20 +13,28 @@ button{background:#2e7d32;color:#fff;border:0;border-radius:24px;padding:12px 26
 </head>
 <body>
 <h1>Autorização do TikTok</h1>
-<p id="msg">Lendo o código…</p>
-<code id="codigo"></code>
+<p id="msg">Conectando…</p>
+<code id="codigo" hidden></code>
 <button id="copiar" hidden>Copiar código</button>
 <script>
 const q = new URLSearchParams(location.search);
 const c = q.get('code'), e = q.get('error_description') || q.get('error');
 const msg = document.getElementById('msg'), cod = document.getElementById('codigo'), b = document.getElementById('copiar');
-if (c) {
-  msg.textContent = 'Pronto! Copie o código abaixo e cole no .env, na linha TIKTOK_CODE= (ele vale por poucos minutos).';
-  cod.textContent = c; b.hidden = false;
+function mostrarCodigo() {
+  msg.textContent = 'Copie o código abaixo e cole no .env, na linha TIKTOK_CODE= (ele vale por poucos minutos).';
+  cod.textContent = c; cod.hidden = false; b.hidden = false;
   b.onclick = () => navigator.clipboard.writeText(c).then(() => b.textContent = 'Copiado ✓');
+}
+if (c) {
+  // com o programa do PC ligado, conecta sozinho e volta para o Publicador
+  fetch('http://127.0.0.1:8765/codigo', {method: 'POST', headers: {'Content-Type': 'application/json'},
+                                          body: JSON.stringify({code: c})})
+    .then(r => r.json()).then(d => {
+      if (d.ok) { msg.textContent = '✅ Conta conectada! Voltando para o Publicador…'; setTimeout(() => location.href = 'publicador.html', 1200); }
+      else mostrarCodigo();
+    }).catch(mostrarCodigo);
 } else {
   msg.textContent = e ? 'O TikTok recusou: ' + e : 'Nenhum código recebido. Faça a autorização de novo.';
-  cod.hidden = true;
 }
 </script>
 </body>
