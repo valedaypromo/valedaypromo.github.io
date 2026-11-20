@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Autorização TikTok | Vale Day Promo</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:640px;margin:0 auto;padding:32px 16px;color:#1f2a1f;background:#fff;text-align:center}
+code{display:block;word-break:break-all;background:#f1f5f1;padding:14px;border-radius:10px;margin:16px 0;font-size:15px}
+button{background:#2e7d32;color:#fff;border:0;border-radius:24px;padding:12px 26px;font-size:16px;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>Autorização do TikTok</h1>
+<p id="msg">Lendo o código…</p>
+<code id="codigo"></code>
+<button id="copiar" hidden>Copiar código</button>
+<script>
+const q = new URLSearchParams(location.search);
+const c = q.get('code'), e = q.get('error_description') || q.get('error');
+const msg = document.getElementById('msg'), cod = document.getElementById('codigo'), b = document.getElementById('copiar');
+if (c) {
+  msg.textContent = 'Pronto! Copie o código abaixo e cole no .env, na linha TIKTOK_CODE= (ele vale por poucos minutos).';
+  cod.textContent = c; b.hidden = false;
+  b.onclick = () => navigator.clipboard.writeText(c).then(() => b.textContent = 'Copiado ✓');
+} else {
+  msg.textContent = e ? 'O TikTok recusou: ' + e : 'Nenhum código recebido. Faça a autorização de novo.';
+  cod.hidden = true;
+}
+</script>
+</body>
+</html>
