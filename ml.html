@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Vale Day Promo · Mercado Livre</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #fff8e1; color: #333; margin: 0; padding: 32px 16px; }
+  .caixa { max-width: 520px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 24px;
+           box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+  h1 { font-size: 22px; margin: 0 0 12px; }
+  code { display: block; word-break: break-all; background: #f4f4f4; padding: 12px; border-radius: 8px;
+         font-size: 15px; margin: 12px 0; }
+  button { background: #3483fa; color: #fff; border: 0; border-radius: 8px; padding: 12px 18px; font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="caixa">
+  <h1>Vale Day Promo + Mercado Livre</h1>
+  <div id="msg">Esta página é o endereço de retorno do app do Mercado Livre.</div>
+</div>
+<script>
+  var p = new URLSearchParams(location.search);
+  var code = p.get("code");
+  if (code) {
+    document.getElementById("msg").innerHTML =
+      "Autorização concedida ✅<br>Copie o código abaixo e entregue ao Claude:" +
+      "<code id='c'></code><button onclick=\"navigator.clipboard.writeText(document.getElementById('c').textContent)\">Copiar código</button>";
+    document.getElementById("c").textContent = code;
+  } else if (p.get("error")) {
+    document.getElementById("msg").textContent = "A autorização não foi concedida: " + p.get("error");
+  }
+</script>
+</body>
+</html>
