@@ -87,10 +87,7 @@ src="https://www.facebook.com/tr?id=2684018035373307&ev=PageView&noscript=1"/></
     <div><b>✓</b>Grupo 100% gratuito, sem spam</div>
   </div>
 
-  <div class="relogio">
-    <p>As ofertas e cupons de hoje renovam em</p>
-    <strong id="relogio">--:--:--</strong>
-  </div>
+  <div class="relogio" id="destaque" hidden></div>
 
   <a class="tg" data-canal="telegram" href="https://t.me/ValeDayPromoMamaes">Prefere o Telegram? Toque aqui ✈️</a>
 </div>
@@ -111,14 +108,6 @@ document.querySelectorAll('a[data-canal]').forEach(function (a) {
 });
 // botão fixo no rodapé depois que a pessoa rola um pouco
 addEventListener('scroll', function () { document.getElementById('fixo').style.display = scrollY > 260 ? 'block' : 'none'; });
-// Relógio HONESTO: conta até a meia-noite de Manaus (UTC-4), quando a lista de ofertas e os cupons do dia mudam.
-function tic() {
-  var agora = new Date(), utc = agora.getTime() + agora.getTimezoneOffset() * 60000, m = new Date(utc - 4 * 3600000);
-  var fim = new Date(m); fim.setHours(24, 0, 0, 0);
-  var s = Math.max(0, Math.floor((fim - m) / 1000)), p = function (n) { return String(n).padStart(2, '0'); };
-  document.getElementById('relogio').textContent = p(Math.floor(s / 3600)) + ':' + p(Math.floor(s % 3600 / 60)) + ':' + p(s % 60);
-}
-tic(); setInterval(tic, 1000);
 var BASE = 'https://raw.githubusercontent.com/Pedrollima03/valedaypromo-arquivos/main/';
 // Prova social REAL: total de membros do grupo (publicado pelo robô). Só aparece a partir de 100.
 fetch(BASE + 'membros.json?v=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
@@ -136,6 +125,18 @@ fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.jso
       box.appendChild(img);
     });
     box.hidden = false;
+  }
+  // destaque: a oferta de fralda (ou de bebê) com MAIOR desconto agora. Urgência real: oferta assim acaba rápido.
+  var top = itens.filter(function (i) { return /fralda/i.test(i.titulo); }).sort(function (a, b) { return b.desconto - a.desconto; })[0]
+    || itens.slice().sort(function (a, b) { return b.desconto - a.desconto; })[0];
+  if (top) {
+    var dz = document.getElementById('destaque');
+    dz.innerHTML = '<p>🔥 Agora no Mercado Livre</p><div style="display:flex;gap:12px;align-items:center;text-align:left;margin-top:8px">' +
+      '<img src="' + top.imagem.replace('.webp', '.jpg') + '" alt="" style="width:74px;height:74px;object-fit:contain;border-radius:12px;border:1px solid #f0e6f6">' +
+      '<div><b style="font-size:14px;line-height:1.3;display:block">' + top.titulo.split(' ').slice(0, 7).join(' ').replace(/</g, '') + '</b>' +
+      '<strong style="font-size:26px">' + top.desconto + '% OFF</strong></div></div>' +
+      '<p style="margin-top:8px">Ofertas assim costumam acabar em poucas horas. No grupo você fica sabendo na hora.</p>';
+    dz.hidden = false;
   }
   var fila = itens.slice(0, 12), k = 0, t = document.getElementById('toast');
   if (!fila.length) return;
