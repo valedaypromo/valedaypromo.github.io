@@ -42,8 +42,16 @@ src="https://www.facebook.com/tr?id=2684018035373307&ev=PageView&noscript=1"/></
   h1{font-family:'Fredoka',sans-serif;font-weight:700;font-size:31px;line-height:1.12;margin:14px 0 10px;text-transform:uppercase}
   .sub{font-size:15px;line-height:1.5;color:var(--suave)}
   .prova{font-weight:700;font-size:14.5px;margin:12px 0 0}
-  .fotos{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:16px 0 4px}
-  .fotos img{width:100%;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:14px;border:1px solid #f0e6f6;padding:3px}
+  /* carrossel de ofertas quentes (rola sozinho; para quando a pessoa toca) */
+  .vitrine{overflow:hidden;margin:16px -20px 4px;padding:4px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+  .trilho{display:flex;gap:10px;width:max-content;animation:rola 40s linear infinite}
+  .vitrine:hover .trilho,.vitrine:active .trilho{animation-play-state:paused}
+  @keyframes rola{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .oferta{flex:0 0 132px;background:#fff;border:1px solid #f0e6f6;border-radius:16px;padding:8px;text-align:left;
+    box-shadow:0 6px 14px rgba(31,0,60,.08);position:relative}
+  .oferta img{width:100%;height:104px;object-fit:contain;border-radius:10px}
+  .oferta span{display:block;font-size:11.5px;font-weight:600;line-height:1.25;margin-top:6px;height:29px;overflow:hidden}
+  .oferta b{position:absolute;top:8px;left:8px;background:#e0245e;color:#fff;font-size:12px;padding:3px 8px;border-radius:999px}
   .botao{display:block;text-decoration:none;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;letter-spacing:.3px;
     border-radius:999px;padding:18px 14px;margin:18px 0 10px;background:var(--lilas);color:#fff;
     box-shadow:0 12px 26px rgba(91,42,134,.4);animation:pulsa 1.8s ease-in-out infinite}
@@ -76,7 +84,7 @@ src="https://www.facebook.com/tr?id=2684018035373307&ev=PageView&noscript=1"/></
   <p class="sub">Receba no seu WhatsApp ofertas reais de fralda, lenço e tudo que o bebê precisa, do Mercado Livre e da Shopee.</p>
   <p class="prova" id="prova" hidden></p>
 
-  <div class="fotos" id="fotos" hidden></div>
+  <div class="vitrine" id="vitrine" hidden><div class="trilho" id="trilho"></div></div>
 
   <a class="botao" data-canal="whatsapp" href="https://chat.whatsapp.com/E9YvNF2oRkd3jFmzU5uSbB">ENTRAR NO GRUPO AGORA</a>
 
@@ -116,16 +124,29 @@ fetch(BASE + 'membros.json?v=' + Date.now()).then(function (r) { return r.json()
 }).catch(function () {});
 // Fotos + "oferta do momento": ofertas REAIS de bebê da lista do Mercado Livre (atualizada a cada 2h). Fralda primeiro.
 fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
-  var itens = (d.itens || []).filter(function (i) { return i.grupo === 'mamaes' && i.imagem && i.desconto >= 15; });
-  itens.sort(function (a, b) { return (/fralda/i.test(b.titulo) ? 1 : 0) - (/fralda/i.test(a.titulo) ? 1 : 0); });
-  if (itens.length >= 4) {
-    var box = document.getElementById('fotos');
-    itens.slice(0, 4).forEach(function (i) {
-      var img = document.createElement('img'); img.src = i.imagem.replace('.webp', '.jpg'); img.alt = ''; img.loading = 'lazy';
-      box.appendChild(img);
+  var itens = (d.itens || []).filter(function (i) {
+    return i.grupo === 'mamaes' && i.imagem && i.desconto >= 15 && i.link.indexOf('click') < 0; });
+  // carrossel VARIADO: a melhor oferta de cada tipo, em rodadas (fralda, leite, carrinho, cadeirinha, lenço...)
+  var tipos = [/fralda/i, /leite|f[oó]rmula|aptamil|aptanutri|milnutri|nestogeno|\bnan\b/i, /carrinho/i,
+               /cadeirinha|conforto|booster/i, /len[çc]o/i, /ber[çc]o/i, /mamadeira|chupeta/i, /brinquedo|montessori|tapete/i,
+               /body|roupa|macac[ãa]o|pijama/i, /banheira|banho/i];
+  var grupos = tipos.map(function (rx) {
+    return itens.filter(function (i) { return rx.test(i.titulo); }).sort(function (a, b) { return b.desconto - a.desconto; });
+  });
+  var escolha = [], vistos = {};
+  for (var r = 0; r < 3; r++) grupos.forEach(function (g) {
+    var i = g[r]; if (i && !vistos[i.id]) { vistos[i.id] = 1; escolha.push(i); }
+  });
+  if (escolha.length >= 6) {
+    var tr = document.getElementById('trilho'), html = '';
+    escolha.slice(0, 16).forEach(function (i) {
+      html += '<div class="oferta"><b>-' + i.desconto + '%</b><img src="' + i.imagem.replace('.webp', '.jpg') +
+        '" alt="" loading="lazy"><span>' + i.titulo.split(' ').slice(0, 6).join(' ').replace(/</g, '') + '</span></div>';
     });
-    box.hidden = false;
+    tr.innerHTML = html + html;              // duas vezes: o carrossel dá a volta sem emenda
+    document.getElementById('vitrine').hidden = false;
   }
+  itens = escolha.length ? escolha : itens;
   // destaque: a oferta de fralda (ou de bebê) com MAIOR desconto agora. Urgência real: oferta assim acaba rápido.
   var top = itens.filter(function (i) { return /fralda/i.test(i.titulo); }).sort(function (a, b) { return b.desconto - a.desconto; })[0]
     || itens.slice().sort(function (a, b) { return b.desconto - a.desconto; })[0];
