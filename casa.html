@@ -204,6 +204,9 @@ fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.jso
     if (prev.length < 3 && !ja[i.id] && !prev.some(function (p) { return p.titulo.split(' ')[0].toLowerCase() === tipo; })) {
       prev.push(i); ja[i.id] = 1; }
   });
+  // 26/11 noite: o dono pediu TUDO FIXO (produto e preço). A nota mostra a data em que o preço foi visto.
+  var FIXO = [{"titulo": "Electrolux Kit 3 Bowls Tigelas de Aço Inox com Tampa Plástica, 1,4L, 2", "preco": 74.9, "preco_antigo": 146.9, "desconto": 49, "imagem": "https://http2.mlstatic.com/D_Q_NP_2X_789898-MLA115997479882_092026-AB.jpg", "review": "4.9 | +100mil vendidos", "full": true, "loja": "Mercado Livre"}, {"titulo": "Kit 10 Potes Herméticos Vidro 370ml Starhouse Marmita Forno Micro-onda", "preco": 61.74, "preco_antigo": 149.9, "desconto": 59, "imagem": "https://http2.mlstatic.com/D_Q_NP_2X_801828-MLA115739959462_092026-AB.jpg", "review": "4.9 | +100mil vendidos", "full": false, "loja": "Mercado Livre"}, {"titulo": "Fritadeira Sem Óleo Air Fryer 4l Mondial 1500W AFN-40-BFT", "preco": 219.9, "preco_antigo": 716.9, "desconto": 69, "imagem": "https://http2.mlstatic.com/D_Q_NP_2X_866262-MLA99776946004_122025-AB.jpg", "review": "4.9 | +100mil vendidos", "full": true, "loja": "Mercado Livre"}];
+  prev = FIXO;
   if (prev.length === 3) {
     var pv = document.getElementById('previa'), h = '';
     prev.forEach(function (i) {
@@ -215,8 +218,7 @@ fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.jso
         '<div class="de">de ' + brl(i.preco_antigo) + '</div><div class="por">' + brl(i.preco) +
         '<span class="pct">-' + i.desconto + '%</span></div></div></div>';
     });
-    pv.insertAdjacentHTML('beforeend', h + '<p class="nota">Ofertas reais do Mercado Livre, vistas hoje às ' +
-      (d.hora || '').slice(0, 5) + '. O preço pode mudar.</p>');
+    pv.insertAdjacentHTML('beforeend', h + '<p class="nota">Ofertas reais do Mercado Livre, preços vistos em 26/11/2026. O preço pode ter mudado.</p>');
     pv.hidden = false;
     document.getElementById('vitrine').remove();          // com a prévia, o carrossel fica sobrando
   }

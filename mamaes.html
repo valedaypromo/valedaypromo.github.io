@@ -189,6 +189,9 @@ fetch(BASE + 'fixas.json?v=' + Date.now()).then(function (r) { return r.json(); 
   var prev = fraldas.slice(0, 1);
   fixas.forEach(function (i) { if (prev.length < 3) prev.push(i); });
   itens.forEach(function (i) { if (prev.length < 3 && i.preco && i.preco_antigo > i.preco && prev.indexOf(i) < 0) prev.push(i); });
+  // 26/11 noite: o dono pediu TUDO FIXO (produto e preço). A nota mostra a data em que o preço foi visto.
+  var FIXO = [{"titulo": "Huggies Fralda Descartável Máxima Proteção XXG - 112 Un", "preco": 91.49, "preco_antigo": 197.75, "desconto": 54, "imagem": "https://http2.mlstatic.com/D_Q_NP_2X_939152-MLA99933491581_112025-AB.jpg", "review": "4.9 | +10mil vendidos", "full": false, "loja": "Mercado Livre"}, {"titulo": "Kit 5 Lenços Umedecido Infantil Com Tampa Flip Top 120 Folhas - Limpez", "preco": 34.65, "preco_antigo": 45.0, "desconto": 23, "imagem": "https://cf.shopee.com.br/file/br-11134207-820ln-mqm7rpndgkcj10", "review": "4.9 | +1978 vendidos", "full": false, "loja": "Shopee"}, {"titulo": "Kit 5 Macacão de Bebê Roupa Menino Estampado Ziper Animado Estampado A", "preco": 79.9, "preco_antigo": 114.0, "desconto": 30, "imagem": "https://cf.shopee.com.br/file/br-11134207-820ma-mt6zr709a2h107", "review": "4.9 | +637 vendidos", "full": false, "loja": "Shopee"}];
+  prev = FIXO;
   if (prev.length === 3) {
     var pv = document.getElementById('previa'), h = '';
     prev.forEach(function (i) {
@@ -199,7 +202,7 @@ fetch(BASE + 'fixas.json?v=' + Date.now()).then(function (r) { return r.json(); 
         '<div class="de">de ' + brl(i.preco_antigo) + '</div><div class="por">' + brl(i.preco) +
         '<span class="pct">-' + i.desconto + '%</span></div></div></div>';
     });
-    pv.insertAdjacentHTML('beforeend', h + '<p class="nota">Ofertas reais do Mercado Livre e da Shopee, com preço visto hoje. O preço pode mudar.</p>');
+    pv.insertAdjacentHTML('beforeend', h + '<p class="nota">Ofertas reais do Mercado Livre e da Shopee, preços vistos em 26/11/2026. O preço pode ter mudado.</p>');
     pv.hidden = false;
     document.getElementById('vitrine').remove();          // com a prévia, o carrossel fica sobrando
   }
