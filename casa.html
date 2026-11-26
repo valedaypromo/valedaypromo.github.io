@@ -179,7 +179,9 @@ fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.jso
   // 26/11 (pedido do dono: "essas ofertas não convertem"): só ofertas CAMPEÃS, com nota 4.7+, 1.000+ vendidos,
   // 30%+ de desconto, R$15 a R$200 e sem item de mercado/limpeza. A 1ª é FIXA (FIXAS) enquanto estiver na lista de
   // hoje; o preço vem sempre da lista do dia (real). Se ela sair da lista, entra a melhor do dia no lugar.
-  var FIXAS = ['MLB53222545'];                          // Kit 10 Potes Herméticos Vidro Starhouse (4.9, +100mil vendidos)
+  // 26/11 noite: o dono quer ofertas perto da METADE do preço e eletrodoméstico. Fixas: Bowls Electrolux (-49%)
+  // e Potes Herméticos Starhouse (-59%); a 3ª vaga é sempre o melhor ELETRODOMÉSTICO do dia (40%+ OFF, até R$400).
+  var FIXAS = ['MLB25125996', 'MLB53222545'];
   function vend(r) { var m = /\+(\d+)\s*(mil)?/.exec(r || ''); return m ? (+m[1]) * (m[2] ? 1000 : 1) : 0; }
   function nota(r) { var m = /^([\d.]+)/.exec(r || ''); return m ? +m[1] : 0; }
   function pts(i) { return i.desconto + 10 * Math.min(vend(i.review) / 5000, 3) + (i.full ? 5 : 0); }
@@ -191,6 +193,12 @@ fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.jso
   }).sort(function (a, b) { return pts(b) - pts(a); });
   var prev = [], ja = {};
   FIXAS.forEach(function (id) { var i = todos.filter(function (x) { return x.id === id; })[0]; if (i) { prev.push(i); ja[id] = 1; } });
+  var ELETRO = /air ?fryer|fritadeira|liquidificador|cafeteira|batedeira|mixer|processador|aspirador|ventilador|micro-?ondas|forno el|grill|churrasqueira el|sanduicheira|panela el[eé]trica|chaleira el|ferro de passar|purificador|climatizador|espremedor|torradeira|m[aá]quina de/i;
+  var eletro = todos.filter(function (i) {
+    return ELETRO.test(i.titulo) && !ja[i.id] && i.desconto >= 40 && nota(i.review) >= 4.6 && vend(i.review) >= 500 && i.preco <= 400;
+  }).sort(function (a, b) { return pts(b) - pts(a); })[0];
+  if (eletro && prev.length < 3) { prev.push(eletro); ja[eletro.id] = 1; }
+  boas = boas.filter(function (i) { return i.desconto >= 40; }).concat(boas.filter(function (i) { return i.desconto < 40; }));
   boas.forEach(function (i) {                            // sem repetir o mesmo tipo (1ª palavra do nome)
     var tipo = i.titulo.split(' ')[0].toLowerCase();
     if (prev.length < 3 && !ja[i.id] && !prev.some(function (p) { return p.titulo.split(' ')[0].toLowerCase() === tipo; })) {

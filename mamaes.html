@@ -77,6 +77,7 @@ src="https://www.facebook.com/tr?id=2684018035373307&ev=PageView&noscript=1"/></
   .msg .de{font-size:11.5px;color:#8a8a8a;text-decoration:line-through;margin-top:4px}
   .msg .por{font-family:'Fredoka',sans-serif;font-size:19px;font-weight:700;color:#1F003C}
   .msg .pct{display:inline-block;background:#e0245e;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;margin-left:5px;vertical-align:3px}
+  .msg .rv{font-size:11px;font-weight:600;color:#1a7f37;margin-top:3px}
   .previa .nota{font-size:10.5px;color:#7a7a7a;text-align:center;margin-top:8px}
   .botao.zap{background:var(--zap);box-shadow:0 12px 26px rgba(37,211,102,.4);margin-bottom:6px}
   .passos{font-size:13px;color:var(--suave);line-height:1.5;margin-bottom:14px}
@@ -148,7 +149,10 @@ fetch(BASE + 'membros.json?v=' + Date.now()).then(function (r) { return r.json()
   if (n >= 100) { var el = document.getElementById('prova'); el.textContent = '⭐ ' + n.toLocaleString('pt-BR') + ' mamães já estão no grupo'; el.hidden = false; }
 }).catch(function () {});
 // Fotos + "oferta do momento": ofertas REAIS de bebê da lista do Mercado Livre (atualizada a cada 2h). Fralda primeiro.
-fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
+// 26/11: antes, as ofertas FIXAS escolhidas pelo dono (fixas.json, preço da Shopee atualizado todo dia por fixas.py)
+fetch(BASE + 'fixas.json?v=' + Date.now()).then(function (r) { return r.json(); }).catch(function () { return {}; })
+.then(function (fx) { window.FX = fx || {}; return fetch(BASE + 'ml_ofertas.json?v=' + Date.now()); })
+.then(function (r) { return r.json(); }).then(function (d) {
   var itens = (d.itens || []).filter(function (i) {
     return i.grupo === 'mamaes' && i.imagem && i.desconto >= 15 && i.link.indexOf('click') < 0; });
   // carrossel VARIADO: a melhor oferta de cada tipo, em rodadas (fralda, leite, carrinho, cadeirinha, lenço...)
@@ -173,17 +177,29 @@ fetch(BASE + 'ml_ofertas.json?v=' + Date.now()).then(function (r) { return r.jso
   }
   itens = escolha.length ? escolha : itens;
   // 26/11: prévia em formato de conversa. 3 ofertas reais (fralda primeiro), com preço de/por da lista de hoje.
-  var prev = itens.filter(function (i) { return i.preco && i.preco_antigo > i.preco; }).slice(0, 3);
+  // 26/11 (pedido do dono): 1) a MELHOR fralda do dia no ML (nota 4.7+, 1.000+ vendidos, maior desconto), porque fralda
+  // converte muito; 2) as FIXAS dele (lenço e macacão da Shopee), só se o preço foi visto nos últimos 2 dias; 3) completa com as do dia.
+  function vend(r) { var m = /\+(\d+)\s*(mil)?/.exec(r || ''); return m ? (+m[1]) * (m[2] ? 1000 : 1) : 0; }
+  function nota(r) { var m = /^([\d.]+)/.exec(r || ''); return m ? +m[1] : 0; }
+  var fixas = ((window.FX || {}).mamaes || []).filter(function (i) {
+    return i.visto && (Date.now() - new Date(i.visto + 'T12:00:00').getTime()) < 2.5 * 864e5; });
+  var fraldas = (d.itens || []).filter(function (i) {
+    return i.grupo === 'mamaes' && /fralda/i.test(i.titulo) && i.imagem && i.preco_antigo > i.preco && i.link.indexOf('click') < 0 &&
+           nota(i.review) >= 4.7 && vend(i.review) >= 1000; }).sort(function (a, b) { return b.desconto - a.desconto; });
+  var prev = fraldas.slice(0, 1);
+  fixas.forEach(function (i) { if (prev.length < 3) prev.push(i); });
+  itens.forEach(function (i) { if (prev.length < 3 && i.preco && i.preco_antigo > i.preco && prev.indexOf(i) < 0) prev.push(i); });
   if (prev.length === 3) {
     var pv = document.getElementById('previa'), h = '';
     prev.forEach(function (i) {
       h += '<div class="msg"><img src="' + i.imagem.replace('.webp', '.jpg') + '" alt="" onerror="this.parentNode.remove()">' +
         '<div><div class="t">' + i.titulo.split(' ').slice(0, 8).join(' ').replace(/</g, '') + '</div>' +
+        '<div class="rv">' + [nota(i.review) ? '⭐ ' + nota(i.review) : '', (String(i.review || '').match(/\+[^|]*vendidos/) || [''])[0],
+          i.loja || 'Mercado Livre'].filter(Boolean).join(' · ').replace(/</g, '') + '</div>' +
         '<div class="de">de ' + brl(i.preco_antigo) + '</div><div class="por">' + brl(i.preco) +
         '<span class="pct">-' + i.desconto + '%</span></div></div></div>';
     });
-    pv.insertAdjacentHTML('beforeend', h + '<p class="nota">Ofertas reais do Mercado Livre, vistas hoje às ' +
-      (d.hora || '').slice(0, 5) + '. O preço pode mudar.</p>');
+    pv.insertAdjacentHTML('beforeend', h + '<p class="nota">Ofertas reais do Mercado Livre e da Shopee, com preço visto hoje. O preço pode mudar.</p>');
     pv.hidden = false;
     document.getElementById('vitrine').remove();          // com a prévia, o carrossel fica sobrando
   }
