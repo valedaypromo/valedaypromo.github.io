@@ -202,7 +202,7 @@ fetch(BASE + 'fixas.json?v=' + Date.now()).then(function (r) { return r.json(); 
         '<div class="de">de ' + brl(i.preco_antigo) + '</div><div class="por">' + brl(i.preco) +
         '<span class="pct">-' + i.desconto + '%</span></div></div></div>';
     });
-    pv.insertAdjacentHTML('beforeend', h + '<p class="nota">Ofertas reais do Mercado Livre e da Shopee, preços vistos em 26/11/2026. O preço pode ter mudado.</p>');
+    pv.insertAdjacentHTML('beforeend', h);
     pv.hidden = false;
     document.getElementById('vitrine').remove();          // com a prévia, o carrossel fica sobrando
   }
